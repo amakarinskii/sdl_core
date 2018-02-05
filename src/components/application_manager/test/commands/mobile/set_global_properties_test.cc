@@ -288,7 +288,17 @@ TEST_F(SetGlobalPropertiesRequestTest,
 
   ON_CALL(mock_message_helper_, VerifyImage(_, _, _))
       .WillByDefault(Return(mobile_apis::Result::SUCCESS));
-
+  EXPECT_CALL(app_mngr_, GetRPCService())
+      .Times(3)
+      .WillRepeatedly(ReturnRef(rpc_service_));
+  EXPECT_CALL(rpc_service_,
+              ManageHMICommand(HMIResultCodeIs(
+                  hmi_apis::FunctionID::UI_SetGlobalProperties)))
+      .WillOnce(Return(true));
+  EXPECT_CALL(rpc_service_,
+              ManageHMICommand(HMIResultCodeIs(
+                  hmi_apis::FunctionID::TTS_SetGlobalProperties)))
+      .WillOnce(Return(true));
   (*msg_vr)[am::strings::params][am::hmi_response::code] =
       hmi_apis::Common_Result::SUCCESS;
   Event event_vr(hmi_apis::FunctionID::TTS_SetGlobalProperties);
@@ -448,7 +458,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_VRBrokenMenuIcon_Canceled) {
   EXPECT_CALL(mock_message_helper_, VerifyImageVrHelpItems(_, _, _)).Times(0);
   EXPECT_CALL(app_mngr_, RemoveAppFromTTSGlobalPropertiesList(_)).Times(0);
   EmptyExpectationsSetupHelper();
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -470,7 +480,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_VRBrokenVRHelp_Canceled) {
       .WillOnce((Return(mobile_apis::Result::ABORTED)));
   EXPECT_CALL(app_mngr_, RemoveAppFromTTSGlobalPropertiesList(_)).Times(0);
   EmptyExpectationsSetupHelper();
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -494,7 +504,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_VRIncorrectSyntax_Canceled) {
       .WillOnce((Return(mobile_apis::Result::SUCCESS)));
   EXPECT_CALL(app_mngr_, RemoveAppFromTTSGlobalPropertiesList(_)).Times(0);
   EmptyExpectationsSetupHelper();
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -515,7 +525,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_VRMissingTitle_Canceled) {
       .WillOnce((Return(mobile_apis::Result::SUCCESS)));
   EXPECT_CALL(app_mngr_, RemoveAppFromTTSGlobalPropertiesList(kConnectionKey));
   EmptyExpectationsSetupHelper();
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -532,7 +542,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_VRMissingArray_Canceled) {
   EXPECT_CALL(mock_message_helper_, VerifyImageVrHelpItems(_, _, _)).Times(0);
   EXPECT_CALL(app_mngr_, RemoveAppFromTTSGlobalPropertiesList(kConnectionKey));
   EmptyExpectationsSetupHelper();
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -553,7 +563,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_VRWrongOrder_Canceled) {
       .WillOnce((Return(mobile_apis::Result::SUCCESS)));
   EXPECT_CALL(app_mngr_, RemoveAppFromTTSGlobalPropertiesList(kConnectionKey));
   EmptyExpectationsSetupHelper();
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -860,6 +870,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_TTSIncorrectSyntax_Canceled) {
   EXPECT_CALL(mock_message_helper_, VerifyImageVrHelpItems(_, _, _)).Times(0);
   EmptyExpectationsSetupHelper();
 
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -1001,7 +1012,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_NoData_Canceled) {
 
   ExpectVerifyImageVrHelpUnsuccess();
   EmptyExpectationsSetupHelper();
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -1015,7 +1026,7 @@ TEST_F(SetGlobalPropertiesRequestTest, Run_InvalidApp_Canceled) {
   ExpectVerifyImageVrHelpUnsuccess();
 
   EmptyExpectationsSetupHelper();
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   SharedPtr<SetGlobalPropertiesRequest> command(
       CreateCommand<SetGlobalPropertiesRequest>(msg));
 
@@ -1127,7 +1138,7 @@ TEST_F(SetGlobalPropertiesRequestTest, OnEvent_InvalidApp_Canceled) {
       .WillRepeatedly(Return(MockAppPtr()));
 
   EXPECT_CALL(*mock_app_, UpdateHash()).Times(0);
-
+  EXPECT_CALL(app_mngr_, GetRPCService()).WillOnce(ReturnRef(rpc_service_));
   Event event(hmi_apis::FunctionID::UI_SetGlobalProperties);
   event.set_smart_object(*msg);
 

@@ -161,7 +161,9 @@ TEST_F(DeleteCommandRequestTest,
   ON_CALL(*mock_app_, FindCommand(kCommandId))
       .WillByDefault(Return(test_msg.get()));
   ON_CALL(*mock_app_, get_grammar_id()).WillByDefault(Return(kConnectionKey));
-
+  EXPECT_CALL(app_mngr_, GetRPCService())
+      .Times(5)
+      .WillRepeatedly(ReturnRef(rpc_service_));
   MessageSharedPtr msg(CreateMessage(smart_objects::SmartType_Map));
   (*msg)[am::strings::params][am::hmi_response::code] =
       hmi_apis::Common_Result::SUCCESS;
@@ -221,7 +223,9 @@ TEST_F(DeleteCommandRequestTest,
       .WillByDefault(Return(am::HmiInterfaces::STATE_AVAILABLE));
   ON_CALL(*app, FindCommand(kCommandId)).WillByDefault(Return(test_msg.get()));
   ON_CALL(*app, get_grammar_id()).WillByDefault(Return(kConnectionKey));
-
+  EXPECT_CALL(app_mngr_, GetRPCService())
+      .Times(4)
+      .WillRepeatedly(ReturnRef(rpc_service_));
   MessageSharedPtr msg(CreateMessage(smart_objects::SmartType_Map));
   (*msg)[am::strings::params][am::hmi_response::code] =
       hmi_apis::Common_Result::SUCCESS;

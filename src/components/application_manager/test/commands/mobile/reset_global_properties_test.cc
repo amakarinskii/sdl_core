@@ -280,11 +280,17 @@ TEST_F(ResetGlobalPropertiesRequestTest,
           smart_objects::SmartType_Map);
   EXPECT_CALL(mock_message_helper_, CreateAppVrHelp(_))
       .WillOnce(Return(vr_help));
+  EXPECT_CALL(app_mngr_, GetRPCService())
+      .Times(2)
+      .WillRepeatedly(ReturnRef(rpc_service_));
+  EXPECT_CALL(rpc_service_,
+              ManageHMICommand(HMIResultCodeIs(
+                  hmi_apis::FunctionID::UI_SetGlobalProperties)))
+      .WillOnce(Return(true));
 
   command_->Run();
 
   event.set_smart_object(*msg_);
-  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(rpc_service_));
   EXPECT_CALL(rpc_service_,
               ManageMobileCommand(
                   MobileResultCodeIs(mobile_apis::Result::eType::SUCCESS),
@@ -323,7 +329,17 @@ TEST_F(ResetGlobalPropertiesRequestTest,
   (*ui_msg)[am::strings::params][am::strings::correlation_id] = kCorrelationId;
   (*ui_msg)[am::strings::params][am::hmi_response::code] =
       hmi_apis::Common_Result::eType::SUCCESS;
-
+  EXPECT_CALL(app_mngr_, GetRPCService())
+      .Times(3)
+      .WillRepeatedly(ReturnRef(rpc_service_));
+  EXPECT_CALL(rpc_service_,
+              ManageHMICommand(HMIResultCodeIs(
+                  hmi_apis::FunctionID::UI_SetGlobalProperties)))
+      .WillOnce(Return(true));
+  EXPECT_CALL(rpc_service_,
+              ManageHMICommand(HMIResultCodeIs(
+                  hmi_apis::FunctionID::TTS_SetGlobalProperties)))
+      .WillOnce(Return(true));
   Event ui_event(hmi_apis::FunctionID::UI_SetGlobalProperties);
   ui_event.set_smart_object(*ui_msg);
 
@@ -359,7 +375,13 @@ TEST_F(ResetGlobalPropertiesRequestTest, OnEvent_InvalidApp_NoHashUpdate) {
   EXPECT_CALL(*mock_app_, reset_vr_help());
 
   EXPECT_CALL(*mock_app_, set_reset_global_properties_active(true));
-
+  EXPECT_CALL(app_mngr_, GetRPCService())
+      .Times(2)
+      .WillRepeatedly(ReturnRef(rpc_service_));
+  EXPECT_CALL(rpc_service_,
+              ManageHMICommand(HMIResultCodeIs(
+                  hmi_apis::FunctionID::UI_SetGlobalProperties)))
+      .WillOnce(Return(true));
   smart_objects::SmartObjectSPtr vr_help =
       ::utils::MakeShared<smart_objects::SmartObject>(
           smart_objects::SmartType_Map);
