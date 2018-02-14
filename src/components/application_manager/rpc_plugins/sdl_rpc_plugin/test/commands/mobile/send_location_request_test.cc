@@ -80,9 +80,15 @@ class SendLocationRequestTest
    public:
     UnwrappedSendLocationRequest(
         const MessageSharedPtr& message,
-        application_manager::ApplicationManager& application_manager)
-        : SendLocationRequest(message, application_manager) {}
-
+        application_manager::ApplicationManager& application_manager,
+        app_mngr::rpc_service::RPCService& rpc_service,
+        app_mngr::HMICapabilities& hmi_capabilities,
+        policy::PolicyHandlerInterface& policy_handler)
+        : SendLocationRequest(message,
+                              application_manager,
+                              rpc_service,
+                              hmi_capabilities,
+                              policy_handler) {}
     ::application_manager::CommandParametersPermissions&
     get_parameters_permissions() {
       return parameters_permissions_;
@@ -132,17 +138,17 @@ class SendLocationRequestTest
 
   void FinishSetup() {
     EXPECT_CALL(*mock_app_, hmi_app_id()).WillOnce(Return(kAppID));
-    ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(rpc_service_));
-    EXPECT_CALL(rpc_service_,
+    ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(mock_rpc_service_));
+    EXPECT_CALL(mock_rpc_service_,
                 ManageHMICommand(HMIResultCodeIs(
                     hmi_apis::FunctionID::Navigation_SendLocation)));
   }
 
   void FinishSetupCancelled(mobile_apis::Result::eType result) {
     EXPECT_CALL(*mock_app_, hmi_app_id()).Times(0);
-    ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(rpc_service_));
-    EXPECT_CALL(rpc_service_, ManageHMICommand(_)).Times(0);
-    EXPECT_CALL(rpc_service_,
+    ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(mock_rpc_service_));
+    EXPECT_CALL(mock_rpc_service_, ManageHMICommand(_)).Times(0);
+    EXPECT_CALL(mock_rpc_service_,
                 ManageMobileCommand(MobileResultCodeIs(result), _));
   }
 
@@ -355,9 +361,9 @@ TEST_F(SendLocationRequestTest, OnEvent_Success) {
   MockAppPtr app(CreateMockApp());
   EXPECT_CALL(app_mngr_, application(kConnectionKey))
       .WillRepeatedly(Return(app));
-  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(rpc_service_));
+  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(mock_rpc_service_));
   EXPECT_CALL(
-      rpc_service_,
+      mock_rpc_service_,
       ManageMobileCommand(MobileResultCodeIs(mobile_apis::Result::SUCCESS), _))
       .WillOnce(Return(false));
   command_->on_event(event);
@@ -368,9 +374,9 @@ TEST_F(SendLocationRequestTest, OnEvent_Cancelled) {
       mobile_apis::Result::SUCCESS;
   Event event(hmi_apis::FunctionID::Navigation_OnWayPointChange);
   event.set_smart_object(*message_);
-  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(rpc_service_));
+  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(mock_rpc_service_));
   EXPECT_CALL(
-      rpc_service_,
+      mock_rpc_service_,
       ManageMobileCommand(MobileResultCodeIs(mobile_apis::Result::SUCCESS), _))
       .Times(0);
   command_->on_event(event);
@@ -391,8 +397,8 @@ TEST_F(SendLocationRequestTest, Run_MandatoryParamsDisallowed_InvalidData) {
   permissions.allowed_params.insert(strings::longitude_degrees);
   // 2nd one disallowed
   permissions.disallowed_params.insert(strings::latitude_degrees);
-  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(rpc_service_));
-  EXPECT_CALL(rpc_service_,
+  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(mock_rpc_service_));
+  EXPECT_CALL(mock_rpc_service_,
               ManageMobileCommand(
                   MobileResultCodeIs(mobile_apis::Result::INVALID_DATA), _));
   command_->Run();

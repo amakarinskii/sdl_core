@@ -180,25 +180,28 @@ TEST_F(SubscribeButtonRequestTest, Run_SUCCESS) {
   ON_CALL(*app, IsSubscribedToButton(_)).WillByDefault(Return(false));
 
   MessageSharedPtr hmi_result_msg;
-  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(rpc_service_));
-  EXPECT_CALL(rpc_service_, ManageHMICommand(_))
+  ON_CALL(app_mngr_, GetRPCService()).WillByDefault(ReturnRef(mock_rpc_service_));
+  EXPECT_CALL(mock_rpc_service_, ManageHMICommand(_))
       .WillOnce(DoAll(SaveArg<0>(&hmi_result_msg), Return(true)));
 
   MessageSharedPtr mobile_result_msg;
-  EXPECT_CALL(this->rpc_service_, ManageMobileCommand(_, _))
+  EXPECT_CALL(this->mock_rpc_service_, ManageMobileCommand(_, _))
       .WillOnce(DoAll(SaveArg<0>(&mobile_result_msg), Return(true)));
   ASSERT_TRUE(command->Init());
   command->Run();
 
-  EXPECT_EQ(hmi_apis::FunctionID::Buttons_OnButtonSubscription,
-            static_cast<hmi_apis::FunctionID::eType>(
-                (*hmi_result_msg)[am::strings::params][am::strings::function_id]
-                    .asInt()));
+  EXPECT_TRUE(false);
+  // --->need to fix segmentation fault (message empty)<---
+  //  EXPECT_EQ(hmi_apis::FunctionID::Buttons_OnButtonSubscription,
+  //            static_cast<hmi_apis::FunctionID::eType>(
+  //                (*hmi_result_msg)[am::strings::params][am::strings::function_id]
+  //                    .asInt()));
 
-  EXPECT_EQ(mobile_apis::Result::SUCCESS,
-            static_cast<mobile_apis::Result::eType>(
-                (*mobile_result_msg)[am::strings::msg_params]
-                                    [am::strings::result_code].asInt()));
+  //  EXPECT_EQ(mobile_apis::Result::SUCCESS,
+  //            static_cast<mobile_apis::Result::eType>(
+  //                (*mobile_result_msg)[am::strings::msg_params]
+  //                                    [am::strings::result_code].asInt()));
+  // --->need to fix segmentation fault<---
 }
 
 }  // namespace subscribe_button_request
