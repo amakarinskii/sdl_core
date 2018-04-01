@@ -950,6 +950,12 @@ class ApplicationManagerImpl
       uint32_t connection_key,
       security_manager::SSLContext::HandshakeResult result) OVERRIDE;
 
+  /**
+   * @brief OnHandshakeFailed currently does nothing.
+   * The method is declared as pure virtual in common base class
+   * therefore it has to be present to allow instanses of current class
+   * creation
+   */
   void OnHandshakeFailed() OVERRIDE;
   /**
    * @brief Notification that certificate update is required.

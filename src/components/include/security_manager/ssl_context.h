@@ -104,6 +104,12 @@ class SSLContext {
                        size_t* out_data_size) = 0;
   virtual bool IsInitCompleted() const = 0;
   virtual bool IsHandshakePending() const = 0;
+  /**
+  * @brief GetCertificateDueDate gets certificate expiration date
+  * @param due_date - certificate expiration time to be received
+  * @return True if certificate expiration date receivedssss
+  * otherwise False
+  */
   virtual bool GetCertificateDueDate(time_t& due_date) const = 0;
   virtual bool HasCertificate() const = 0;
   virtual size_t get_max_block_size(size_t mtu) const = 0;

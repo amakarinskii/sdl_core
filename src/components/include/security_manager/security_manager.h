@@ -73,6 +73,7 @@ class SecurityManager : public protocol_handler::ProtocolObserver,
     ERROR_UNKNOWN_INTERNAL_ERROR = 0xFE  // error value for testing
   };
 
+  //  SSL context creation strategy
   enum ContextCreationStrategy { kUseExisting = 0, kForceRecreation };
 
   /**
@@ -119,10 +120,11 @@ class SecurityManager : public protocol_handler::ProtocolObserver,
   }
 
   /**
-   * \brief Create new SSLContext for connection or return exists
+   * @brief Create new SSLContext for connection or return exists
    * Do not notify listeners, send security error on occure
-   * \param connection_key Unique key used by other components as session
+   * @param connection_key Unique key used by other components as session
    * identifier
+   * @param cc_strategy - SSL context creation strategy
    * @return new \c  SSLContext or \c NULL on any error
    */
   virtual SSLContext* CreateSSLContext(const uint32_t& connection_key,
@@ -143,6 +145,7 @@ class SecurityManager : public protocol_handler::ProtocolObserver,
 
   /**
    * @brief Check whether certificate should be updated
+   * @param connection_key the connection identifier to check certificate for.
    * @return true if certificate should be updated otherwise false
    */
   virtual bool IsCertificateUpdateRequired(const uint32_t connection_key) = 0;
@@ -152,7 +155,7 @@ class SecurityManager : public protocol_handler::ProtocolObserver,
    * was received from hmi
    * @return true if received otherwise false
    */
-  virtual bool IsSystemTimeReady() const = 0;
+  virtual bool IsSystemTimeProviderReady() const = 0;
 
   /**
    * @brief Notify all listeners that certificate update required

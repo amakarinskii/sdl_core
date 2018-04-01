@@ -91,6 +91,8 @@ class HandshakeHandler : public security_manager::SecurityManagerListener {
 
   /**
    * @brief Notification about handshake failure
+   * Gets parameters from payload and processes
+   * handshake failure procedure
    */
   void OnHandshakeFailed() OVERRIDE;
 

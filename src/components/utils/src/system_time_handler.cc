@@ -56,8 +56,8 @@ time_t SystemTimeHandler::GetUTCTime() {
   return FetchSystemTime();
 }
 
-bool SystemTimeHandler::is_system_time_ready() const {
-  return is_utc_time_ready();
+bool SystemTimeHandler::system_time_can_be_received() const {
+  return utc_time_can_be_received();
 }
 
 }  // namespace utils

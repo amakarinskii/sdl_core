@@ -44,7 +44,7 @@ namespace application_manager {
 SystemTimeHandlerImpl::SystemTimeHandlerImpl(
     ApplicationManager& application_manager)
     : event_engine::EventObserver(application_manager.event_dispatcher())
-    , is_utc_ready_(false)
+    , utc_time_can_be_received_(false)
     , schedule_request_(false)
     , system_time_listener_(NULL)
     , app_manager_(application_manager) {
@@ -63,7 +63,7 @@ void SystemTimeHandlerImpl::DoSystemTimeQuery() {
   using namespace application_manager;
 
   sync_primitives::AutoLock lock(state_lock_);
-  if (!is_utc_ready_) {
+  if (!utc_time_can_be_received_) {
     LOG4CXX_INFO(logger_,
                  "Navi module is not yet ready."
                      << "Will process request once it became ready.");
@@ -74,11 +74,14 @@ void SystemTimeHandlerImpl::DoSystemTimeQuery() {
 }
 
 void SystemTimeHandlerImpl::DoSubscribe(utils::SystemTimeListener* listener) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  DCHECK(listener);
   sync_primitives::AutoLock lock(system_time_listener_lock_);
   system_time_listener_ = listener;
 }
 
 void SystemTimeHandlerImpl::DoUnsubscribe(utils::SystemTimeListener* listener) {
+  LOG4CXX_AUTO_TRACE(logger_);
   sync_primitives::AutoLock lock(system_time_listener_lock_);
   system_time_listener_ = NULL;
 }
@@ -88,10 +91,10 @@ time_t SystemTimeHandlerImpl::FetchSystemTime() {
   return last_time_;
 }
 
-bool SystemTimeHandlerImpl::is_utc_time_ready() const {
+bool SystemTimeHandlerImpl::utc_time_can_be_received() const {
   LOG4CXX_AUTO_TRACE(logger_);
   sync_primitives::AutoLock lock(state_lock_);
-  return is_utc_ready_;
+  return utc_time_can_be_received_;
 }
 
 void SystemTimeHandlerImpl::SendTimeRequest() {
@@ -110,20 +113,21 @@ void SystemTimeHandlerImpl::on_event(
   using namespace hmi_apis::FunctionID;
   switch (event.id()) {
     case BasicCommunication_OnSystemTimeReady:
-      OnSystemTimeReady();
+      ProcessSystemTimeReadyNotification();
       break;
     case BasicCommunication_GetSystemTime:
-      OnSystemTimeResponse(event);
+      ProcessSystemTimeResponse(event);
       break;
     default:
+      LOG4CXX_ERROR(logger_, "Unknown Event received");
       break;
   }
 }
 
-void SystemTimeHandlerImpl::OnSystemTimeReady() {
+void SystemTimeHandlerImpl::ProcessSystemTimeReadyNotification() {
   LOG4CXX_AUTO_TRACE(logger_);
   sync_primitives::AutoLock lock(state_lock_);
-  is_utc_ready_ = true;
+  utc_time_can_be_received_ = true;
   if (schedule_request_) {
     SendTimeRequest();
     schedule_request_ = false;
@@ -132,7 +136,7 @@ void SystemTimeHandlerImpl::OnSystemTimeReady() {
       hmi_apis::FunctionID::BasicCommunication_OnSystemTimeReady);
 }
 
-void SystemTimeHandlerImpl::OnSystemTimeResponse(
+void SystemTimeHandlerImpl::ProcessSystemTimeResponse(
     const application_manager::event_engine::Event& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   const smart_objects::SmartObject& message = event.smart_object();
@@ -144,11 +148,16 @@ void SystemTimeHandlerImpl::OnSystemTimeResponse(
 
   system_time.tm_sec = system_time_so[time_keys::second].asInt();
   system_time.tm_min = system_time_so[time_keys::minute].asInt();
-  system_time.tm_hour = system_time_so[time_keys::hour].asInt();
+  // According to tm specification of tm type hour should be decreased by 1
+  system_time.tm_hour = system_time_so[time_keys::hour].asInt() - 1;
   system_time.tm_mday = system_time_so[time_keys::day].asInt();
+  // According to tm specification of tm type mon should be decreased by 1
   system_time.tm_mon = system_time_so[time_keys::month].asInt() - 1;
+  // According to tm specification of tm type
+  // tm_year - number of years since 1900
   system_time.tm_year = system_time_so[time_keys::year].asInt() - 1900;
 
+  // Normalize and convert time from 'tm' format to 'time_t'
   last_time_ = mktime(&system_time);
 
   sync_primitives::AutoLock lock(system_time_listener_lock_);

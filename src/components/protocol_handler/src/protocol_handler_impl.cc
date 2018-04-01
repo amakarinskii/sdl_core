@@ -843,13 +843,13 @@ void ProtocolHandlerImpl::OnConnectionClosed(
 void ProtocolHandlerImpl::NotifyOnFailedHandshake() {
   LOG4CXX_AUTO_TRACE(logger_);
   sync_primitives::AutoLock lock(handshake_handlers_lock_);
-  std::list<std::shared_ptr<HandshakeHandler> >::iterator it =
-      handshake_handlers_.begin();
-  while (it != handshake_handlers_.end()) {
-    (*it)->OnHandshakeFailed();
-    LOG4CXX_DEBUG(logger_, "Destroying handler: " << *it);
-    it = handshake_handlers_.erase(it);
-  }
+
+  std::for_each(
+      handshake_handlers_.begin(),
+      handshake_handlers_.end(),
+      std::bind(&HandshakeHandler::OnHandshakeFailed, std::placeholders::_1));
+
+  handshake_handlers_.clear();
 }
 
 void ProtocolHandlerImpl::OnPTUFinished(const bool ptu_result) {
@@ -1651,7 +1651,7 @@ void ProtocolHandlerImpl::NotifySessionStarted(
       if (!ssl_context->IsHandshakePending()) {
         // Start handshake process
         security_manager_->StartHandshake(connection_key);
-        if (!security_manager_->IsSystemTimeReady()) {
+        if (!security_manager_->IsSystemTimeProviderReady()) {
           SendStartSessionNAck(context.connection_id_,
                                packet->session_id(),
                                protocol_version,

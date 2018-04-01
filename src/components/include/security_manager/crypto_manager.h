@@ -66,7 +66,14 @@ class CryptoManager : public policy::PolicyHandlerObserver {
   virtual bool OnCertificateUpdated(const std::string& data) = 0;
   virtual void ReleaseSSLContext(SSLContext* context) = 0;
   virtual std::string LastError() const = 0;
-
+  /**
+  * @brief IsCertificateUpdateRequired checks if certificate update is needed
+  * @param system_time - time with which certificate expiration time
+  * should be compared
+  * @param certificates_time - certificate expiration time
+  * @return True if certificate expired and need to be updated
+  * otherwise False
+  */
   virtual bool IsCertificateUpdateRequired(
       const time_t system_time, const time_t certificates_time) const = 0;
   /**

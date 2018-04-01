@@ -104,6 +104,9 @@ class ProtocolHandler {
                               uint8_t session_id,
                               uint8_t service_type) = 0;
 
+  /**
+   * \brief Called to notify all handsheke handlers about handshake failure.
+   */
   virtual void NotifyOnFailedHandshake() = 0;
 
   /**

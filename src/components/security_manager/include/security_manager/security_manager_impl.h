@@ -171,7 +171,7 @@ class SecurityManagerImpl : public SecurityManager,
    * was received from hmi
    * @return true if received otherwise false
    */
-  bool IsSystemTimeReady() const OVERRIDE;
+  bool IsSystemTimeProviderReady() const OVERRIDE;
 
   /**
    * \brief Add/Remove for SecurityManagerListener

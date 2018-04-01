@@ -86,7 +86,7 @@ set (MESSAGE_HELPER_PATHS
 )
 collect_sources(MESSAGE_HELPER_SOURCES "${MESSAGE_HELPER_PATHS}")
 
-set (SYSTEM_TIME
+set (SYSTEM_TIME_SOURCES
   ${AM_SOURCE_DIR}/src/system_time/system_time_handler_impl.cc
 )
 
@@ -454,7 +454,7 @@ target_link_libraries("AMHMICommandsLibrary" ${LIBRARIES} AMEventEngine)
 add_library("MessageHelper" ${MESSAGE_HELPER_SOURCES})
 target_link_libraries("MessageHelper" ${LIBRARIES})
 
-add_library("SystemTimeLibrary" ${SYSTEM_TIME})
+add_library("SystemTimeLibrary" ${SYSTEM_TIME_SOURCES})
 target_link_libraries("SystemTimeLibrary" ${LIBRARIES} AMEventEngine)
 add_dependencies("MessageHelper" HMI_API MOBILE_API)
 

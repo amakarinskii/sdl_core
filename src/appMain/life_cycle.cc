@@ -120,9 +120,10 @@ bool LifeCycle::StartComponents() {
   }
 
 #ifdef ENABLE_SECURITY
-  utils::SystemTimeHandler* handler =
+  system_time_handler_ =
       new application_manager::SystemTimeHandlerImpl(*app_manager_);
-  security_manager_ = new security_manager::SecurityManagerImpl(handler);
+  security_manager_ =
+      new security_manager::SecurityManagerImpl(system_time_handler_);
   crypto_manager_ = new security_manager::CryptoManagerImpl(
       utils::MakeShared<security_manager::CryptoManagerSettingsImpl>(
           profile_, app_manager_->GetPolicyHandler().RetrieveCertificate()));
@@ -272,6 +273,8 @@ void LifeCycle::StopComponents() {
     LOG4CXX_INFO(logger_, "Destroying Security Manager");
     delete security_manager_;
     security_manager_ = NULL;
+    delete system_time_handler_;
+    system_time_handler_ = NULL;
   }
 #endif  // ENABLE_SECURITY
   protocol_handler_->Stop();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Ford Motor Company
+ * Copyright (c) 2018, Ford Motor Company
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,13 @@
  */
 
 #include "security_manager/security_manager_impl.h"
+#include <functional>
 #include "security_manager/crypto_manager_impl.h"
 #include "protocol_handler/protocol_packet.h"
 #include "utils/logger.h"
 #include "utils/byte_order.h"
 #include "json/json.h"
+#include "utils/helpers.h"
 
 namespace security_manager {
 
@@ -53,6 +55,7 @@ SecurityManagerImpl::SecurityManagerImpl(
     , system_time_handler_(system_time_handler)
     , waiting_for_certificate_(false)
     , waiting_for_time_(false) {
+  DCHECK(system_time_handler_);
   system_time_handler_->SubscribeOnSystemTime(this);
 }
 
@@ -187,10 +190,10 @@ security_manager::SSLContext* SecurityManagerImpl::CreateSSLContext(
 }
 
 void SecurityManagerImpl::PostponeHandshake(const uint32_t connection_key) {
-  LOG4CXX_DEBUG(logger_, "Handshake postponed");
+  LOG4CXX_TRACE(logger_, "Handshake postponed");
   sync_primitives::AutoLock lock(connections_lock_);
   if (waiting_for_certificate_) {
-  awaiting_certificate_connections_.insert(connection_key);
+    awaiting_certificate_connections_.insert(connection_key);
   }
   if (waiting_for_time_) {
     awaiting_time_connections_.insert(connection_key);
@@ -198,7 +201,7 @@ void SecurityManagerImpl::PostponeHandshake(const uint32_t connection_key) {
 }
 
 void SecurityManagerImpl::ResumeHandshake(uint32_t connection_key) {
-  LOG4CXX_DEBUG(logger_, "Handshake resumed");
+  LOG4CXX_TRACE(logger_, "Handshake resumed");
 
   security_manager::SSLContext* ssl_context =
       CreateSSLContext(connection_key, kForceRecreation);
@@ -251,8 +254,8 @@ void SecurityManagerImpl::StartHandshake(uint32_t connection_key) {
   system_time_handler_->QuerySystemTime();
 }
 
-bool SecurityManagerImpl::IsSystemTimeReady() const {
-  return system_time_handler_->is_system_time_ready();
+bool SecurityManagerImpl::IsSystemTimeProviderReady() const {
+  return system_time_handler_->system_time_can_be_received();
 }
 
 void SecurityManagerImpl::ProceedHandshake(
@@ -280,7 +283,7 @@ void SecurityManagerImpl::ProceedHandshake(
   if (crypto_manager_->IsCertificateUpdateRequired(
           system_time_handler_->GetUTCTime(), cert_due_date)) {
     LOG4CXX_DEBUG(logger_, "Host certificate update required");
-    if (1 == awaiting_certificate_connections_.size()) {
+    if (helpers::in_range(awaiting_certificate_connections_, connection_key)) {
       NotifyListenersOnHandshakeDone(connection_key,
                                      SSLContext::Handshake_Result_CertExpired);
       return;
@@ -323,7 +326,7 @@ bool SecurityManagerImpl::IsCertificateUpdateRequired(
   LOG4CXX_AUTO_TRACE(logger_);
   security_manager::SSLContext* ssl_context =
       CreateSSLContext(connection_key, kUseExisting);
-  DCHECK(ssl_context);
+  DCHECK_OR_RETURN(ssl_context, true);
   LOG4CXX_DEBUG(logger_,
                 "Set SSL context to connection_key " << connection_key);
   time_t cert_due_date;
@@ -356,7 +359,6 @@ void SecurityManagerImpl::RemoveListener(
 
 bool SecurityManagerImpl::OnCertificateUpdated(const std::string& data) {
   LOG4CXX_AUTO_TRACE(logger_);
-  LOG4CXX_DEBUG(logger_, "Certificate updated");
   {
     sync_primitives::AutoLock lock(waiters_lock_);
     waiting_for_certificate_ = false;

@@ -133,7 +133,7 @@ class CryptoManagerImpl : public CryptoManager {
   SSLContext* CreateSSLContext() OVERRIDE;
   void ReleaseSSLContext(SSLContext* context) OVERRIDE;
   std::string LastError() const OVERRIDE;
-  virtual bool IsCertificateUpdateRequired(
+  bool IsCertificateUpdateRequired(
       const time_t system_time, const time_t certificates_time) const OVERRIDE;
   virtual const CryptoManagerSettings& get_settings() const OVERRIDE;
 

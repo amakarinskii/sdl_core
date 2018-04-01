@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Ford Motor Company
+ * Copyright (c) 2018, Ford Motor Company
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ class SystemTimeHandler {
    * @return True if HMI is ready to provide UTC time
    * otherwise False
    */
-  bool is_system_time_ready() const;
+  bool system_time_can_be_received() const;
 
   /**
    * @brief ~SystemTimeHandler destroys the object
@@ -138,12 +138,12 @@ class SystemTimeHandler {
   virtual time_t FetchSystemTime() = 0;
 
   /**
-   * @brief Checks if UTC time is ready
+   * @brief Checks if UTC time is ready to provided by HMI
    * and can be requested by GetSystemTime request
    * @return True if HMI is ready to provide UTC time
    * otherwise False
    */
-  virtual bool is_utc_time_ready() const = 0;
+  virtual bool utc_time_can_be_received() const = 0;
 };
 
 }  // namespace utils

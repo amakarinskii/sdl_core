@@ -115,30 +115,36 @@ class SystemTimeHandlerImpl : public utils::SystemTimeHandler,
   void SendTimeRequest();
 
   /**
-   * @brief OnSystemTimeResponse allows to process GetSystemTimeResponse
+   * @brief ProcessSystemTimeResponse allows to process GetSystemTimeResponse
    * @param event contains response parameters aka "systemTime".
    */
-  void OnSystemTimeResponse(
+  void ProcessSystemTimeResponse(
       const application_manager::event_engine::Event& event);
 
   /**
-   * @brief OnSystemTimeReady allows to process OnSystemTimeready notification
+   * @brief ProcessSystemTimeReadyNotification allows to process
+   * OnSystemTimeready notification
    * from HMI. It unsubscribes from the mentioned notification and sends
    * GetSystemTimeRequest to HMI in order to obtain system time
    */
-  void OnSystemTimeReady();
+  void ProcessSystemTimeReadyNotification();
 
   /**
-   * @brief Checks if UTC time is ready
+   * @brief Checks if UTC time is ready to provided by HMI
    * and can be requested by GetSystemTime request
    * @return True if HMI is ready to provide UTC time
    * otherwise False
    */
-  bool is_utc_time_ready() const FINAL;
+  bool utc_time_can_be_received() const FINAL;
 
   mutable sync_primitives::Lock state_lock_;
-  volatile bool is_utc_ready_;
+  // Variable means HMI readiness to provide system time by request
+  volatile bool utc_time_can_be_received_;
+  // Varible used to schedule next GetSystemTime request
+  // if at the moment of sending first GetSystemTime request
+  // HMI is not ready to provide system time
   volatile bool schedule_request_;
+  // Varible used to store result for GetSystemTime request
   time_t last_time_;
 
   sync_primitives::Lock system_time_listener_lock_;

@@ -95,6 +95,7 @@ class LifeCycle {
 #ifdef ENABLE_SECURITY
   security_manager::CryptoManager* crypto_manager_;
   security_manager::SecurityManager* security_manager_;
+  utils::SystemTimeHandler* system_time_handler_;
 #endif  // ENABLE_SECURITY
   hmi_message_handler::HMIMessageHandlerImpl* hmi_handler_;
   hmi_message_handler::HMIMessageAdapter* hmi_message_adapter_;
