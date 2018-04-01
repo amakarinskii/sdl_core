@@ -92,12 +92,18 @@ class CryptoManagerTest : public testing::Test {
   }
 
   void InitSecurityManager() {
+    ProtectionSettingsCorrect();
     SetInitialValues(
         security_manager::CLIENT, security_manager::TLSv1_2, kAllCiphers);
     const bool crypto_manager_initialization = crypto_manager_->Init();
     ASSERT_TRUE(crypto_manager_initialization);
   }
-
+  void ProtectionSettingsCorrect() {
+    EXPECT_CALL(*mock_security_manager_settings_, force_unprotected_service())
+        .WillOnce(ReturnRef(forced_unprotected_services_));
+    EXPECT_CALL(*mock_security_manager_settings_, force_protected_service())
+        .WillOnce(ReturnRef(forced_protected_services_));
+  }
   void SetInitialValues(security_manager::Mode mode,
                         security_manager::Protocol protocol,
                         const std::string& cipher) {
@@ -118,6 +124,8 @@ class CryptoManagerTest : public testing::Test {
   utils::SharedPtr<CryptoManagerImpl> crypto_manager_;
   utils::SharedPtr<MockCryptoManagerSettings> mock_security_manager_settings_;
   static std::string certificate_data_base64_;
+  std::vector<int> forced_protected_services_;
+  std::vector<int> forced_unprotected_services_;
 };
 std::string CryptoManagerTest::certificate_data_base64_;
 
@@ -133,7 +141,9 @@ TEST_F(CryptoManagerTest, WrongInit) {
   // Unknown protocol version
   security_manager::Protocol UNKNOWN =
       static_cast<security_manager::Protocol>(-1);
-
+  std::vector<int> forced_protected_services_;
+  std::vector<int> forced_unprotected_services_;
+  ProtectionSettingsCorrect();
   EXPECT_CALL(*mock_security_manager_settings_, security_manager_mode())
       .WillRepeatedly(Return(security_manager::SERVER));
   EXPECT_CALL(*mock_security_manager_settings_,
@@ -143,6 +153,7 @@ TEST_F(CryptoManagerTest, WrongInit) {
   EXPECT_NE(std::string(), crypto_manager_->LastError());
   // Unexistent cipher value
   const std::string invalid_cipher = "INVALID_UNKNOWN_CIPHER";
+  ProtectionSettingsCorrect();
   EXPECT_CALL(*mock_security_manager_settings_,
               security_manager_protocol_name())
       .WillOnce(Return(security_manager::TLSv1_2));
@@ -158,25 +169,30 @@ TEST_F(CryptoManagerTest, WrongInit) {
 //  #ifndef __QNXNTO__
 TEST_F(CryptoManagerTest, CorrectInit) {
   // Empty cert and key values for SERVER
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::SERVER, security_manager::TLSv1_2, kFordCipher);
   EXPECT_TRUE(crypto_manager_->Init());
 
   // Recall init
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::CLIENT, security_manager::TLSv1_2, kFordCipher);
   EXPECT_TRUE(crypto_manager_->Init());
 
   // Recall init with other protocols
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::CLIENT, security_manager::TLSv1_2, kFordCipher);
   EXPECT_TRUE(crypto_manager_->Init());
 
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::CLIENT, security_manager::TLSv1_1, kFordCipher);
   EXPECT_TRUE(crypto_manager_->Init());
 
   // Cipher value
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::SERVER, security_manager::TLSv1_2, kAllCiphers);
   EXPECT_TRUE(crypto_manager_->Init());
@@ -189,6 +205,7 @@ TEST_F(CryptoManagerTest, ReleaseSSLContext_Null) {
 
 TEST_F(CryptoManagerTest, CreateReleaseSSLContext) {
   const size_t max_payload_size = 1000u;
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::CLIENT, security_manager::TLSv1_2, kAllCiphers);
   EXPECT_TRUE(crypto_manager_->Init());
@@ -213,7 +230,7 @@ TEST_F(CryptoManagerTest, OnCertificateUpdated_UpdateNotRequired) {
   time_t system_time = 0;
   time_t certificates_time = 1;
   size_t updates_before = 0;
-
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::CLIENT, security_manager::TLSv1_2, kAllCiphers);
   ASSERT_TRUE(crypto_manager_->Init());
@@ -225,6 +242,7 @@ TEST_F(CryptoManagerTest, OnCertificateUpdated_UpdateNotRequired) {
                                                             certificates_time));
 
   size_t max_updates_ = std::numeric_limits<size_t>::max();
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::CLIENT, security_manager::TLSv1_2, kAllCiphers);
   EXPECT_CALL(*mock_security_manager_settings_, update_before_hours())
@@ -253,6 +271,7 @@ TEST_F(CryptoManagerTest, OnCertificateUpdated_MalformedSign) {
 }
 
 TEST_F(CryptoManagerTest, OnCertificateUpdated_WrongInitFolder) {
+  ProtectionSettingsCorrect();
   SetInitialValues(
       security_manager::CLIENT, security_manager::TLSv1_2, kAllCiphers);
   ASSERT_TRUE(crypto_manager_->Init());

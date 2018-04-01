@@ -44,6 +44,7 @@ namespace security_manager_test {
 class MockSecurityManagerListener
     : public ::security_manager::SecurityManagerListener {
  public:
+  MockSecurityManagerListener() {}
   MOCK_METHOD2(OnHandshakeDone,
                bool(uint32_t connection_key,
                     ::security_manager::SSLContext::HandshakeResult result));

@@ -113,7 +113,10 @@ class SSLTest : public testing::Test {
     utils::SharedPtr<security_manager::CryptoManagerSettings> crypto_set(
         mock_crypto_manager_settings_);
     crypto_manager_ = new security_manager::CryptoManagerImpl(crypto_set);
-
+    EXPECT_CALL(*mock_crypto_manager_settings_, force_unprotected_service())
+        .WillOnce(ReturnRef(forced_unprotected_services_));
+    EXPECT_CALL(*mock_crypto_manager_settings_, force_protected_service())
+        .WillOnce(ReturnRef(forced_protected_services_));
     EXPECT_CALL(*mock_crypto_manager_settings_, security_manager_mode())
         .WillOnce(Return(security_manager::SERVER));
     EXPECT_CALL(*mock_crypto_manager_settings_,
@@ -135,7 +138,10 @@ class SSLTest : public testing::Test {
     utils::SharedPtr<security_manager::CryptoManagerSettings> client_crypto(
         mock_client_manager_settings_);
     client_manager_ = new security_manager::CryptoManagerImpl(client_crypto);
-
+    EXPECT_CALL(*mock_client_manager_settings_, force_unprotected_service())
+        .WillOnce(ReturnRef(forced_unprotected_services_));
+    EXPECT_CALL(*mock_client_manager_settings_, force_protected_service())
+        .WillOnce(ReturnRef(forced_protected_services_));
     EXPECT_CALL(*mock_client_manager_settings_, security_manager_mode())
         .WillOnce(Return(security_manager::CLIENT));
     EXPECT_CALL(*mock_client_manager_settings_,
@@ -199,6 +205,8 @@ class SSLTest : public testing::Test {
 
   static std::string client_certificate_data_base64_;
   static std::string server_certificate_data_base64_;
+  std::vector<int> forced_protected_services_;
+  std::vector<int> forced_unprotected_services_;
 };
 std::string SSLTest::client_certificate_data_base64_;
 std::string SSLTest::server_certificate_data_base64_;
@@ -227,6 +235,11 @@ class SSLTestParam : public testing::TestWithParam<ProtocolAndCipher> {
     SetServerInitialValues(GetParam().server_protocol,
                            GetParam().server_ciphers_list);
 
+    EXPECT_CALL(* mock_crypto_manager_settings_, force_unprotected_service())
+        .WillOnce(ReturnRef(forced_unprotected_services_));
+    EXPECT_CALL(* mock_crypto_manager_settings_, force_protected_service())
+        .WillOnce(ReturnRef(forced_protected_services_));
+
     const bool crypto_manager_initialization = crypto_manager->Init();
     EXPECT_TRUE(crypto_manager_initialization);
 
@@ -240,6 +253,10 @@ class SSLTestParam : public testing::TestWithParam<ProtocolAndCipher> {
     SetClientInitialValues(GetParam().client_protocol,
                            GetParam().client_ciphers_list);
 
+    EXPECT_CALL(*mock_client_manager_settings_, force_unprotected_service())
+        .WillOnce(ReturnRef(forced_unprotected_services_));
+    EXPECT_CALL(*mock_client_manager_settings_, force_protected_service())
+        .WillOnce(ReturnRef(forced_protected_services_));
     const bool client_manager_initialization = client_manager->Init();
     EXPECT_TRUE(client_manager_initialization);
 
@@ -308,6 +325,9 @@ class SSLTestParam : public testing::TestWithParam<ProtocolAndCipher> {
   security_manager::SSLContext* server_ctx;
   security_manager::SSLContext* client_ctx;
   std::string certificate_data_base64_;
+
+  std::vector<int> forced_protected_services_;
+  std::vector<int> forced_unprotected_services_;
 };
 
 class SSLTestForTLS1_2 : public SSLTestParam {};

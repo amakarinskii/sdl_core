@@ -156,6 +156,12 @@ class SSLHandshakeTest : public testing::Test {
     cert.close();
     SetServerInitialValues(
         protocol, ss.str(), ciphers_list, verify_peer, ca_certificate_path);
+
+    EXPECT_CALL(*mock_server_manager_settings, force_unprotected_service())
+        .WillOnce(ReturnRef(forced_unprotected_services_));
+    EXPECT_CALL(*mock_server_manager_settings, force_protected_service())
+        .WillOnce(ReturnRef(forced_protected_services_));
+
     const bool initialized = server_manager->Init();
 
     if (!initialized) {
@@ -192,6 +198,13 @@ class SSLHandshakeTest : public testing::Test {
                            ciphers_list,
                            verify_peer,
                            ca_certificate_path);
+
+
+    EXPECT_CALL(*mock_client_manager_settings, force_unprotected_service())
+        .WillOnce(ReturnRef(forced_unprotected_services_));
+    EXPECT_CALL(*mock_client_manager_settings, force_protected_service())
+        .WillOnce(ReturnRef(forced_protected_services_));
+
     const bool initialized = client_manager->Init();
     if (!initialized) {
       return false;
@@ -335,6 +348,9 @@ class SSLHandshakeTest : public testing::Test {
   std::string client_certificate_;
   std::string client_ciphers_list_;
   std::string client_ca_certificate_path_;
+
+  std::vector<int> forced_protected_services_;
+  std::vector<int> forced_unprotected_services_;
 };
 
 TEST_F(SSLHandshakeTest, NoVerification) {

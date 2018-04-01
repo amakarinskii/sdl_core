@@ -48,6 +48,14 @@ class MockSystemTimeHandler : public ::utils::SystemTimeHandler {
   MOCK_METHOD1(UnSubscribeFromSystemTime,
                void(utils::SystemTimeListener* listener));
   MOCK_METHOD0(GetUTCTime, time_t());
+
+ private:
+  void DoSubscribe(utils::SystemTimeListener*) {}
+  void DoSystemTimeQuery() {}
+  void DoUnsubscribe(utils::SystemTimeListener* listener) {}
+  time_t FetchSystemTime() {
+    return 0;
+  }
 };
 }  // namespace security_manager_test
 }  // namespace components
