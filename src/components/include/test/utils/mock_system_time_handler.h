@@ -42,12 +42,26 @@ namespace security_manager_test {
 
 class MockSystemTimeHandler : public ::utils::SystemTimeHandler {
  public:
+  MockSystemTimeHandler() {}
   MOCK_METHOD0(QuerySystemTime, void());
   MOCK_METHOD1(SubscribeOnSystemTime,
                void(utils::SystemTimeListener* listener));
   MOCK_METHOD1(UnSubscribeFromSystemTime,
                void(utils::SystemTimeListener* listener));
   MOCK_METHOD0(GetUTCTime, time_t());
+  MOCK_CONST_METHOD0(system_time_can_be_received, bool());
+  ~MockSystemTimeHandler() {}
+
+ private:
+  void DoSubscribe(utils::SystemTimeListener*) {}
+  void DoSystemTimeQuery() {}
+  void DoUnsubscribe(utils::SystemTimeListener* listener) {}
+  bool utc_time_can_be_received() const {
+    return true;
+  }
+  time_t FetchSystemTime() {
+    return 0;
+  }
 };
 }  // namespace security_manager_test
 }  // namespace components
