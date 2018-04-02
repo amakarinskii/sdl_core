@@ -71,6 +71,7 @@ class MockSecurityManager : public ::security_manager::SecurityManager {
   MOCK_METHOD0(IsPolicyCertificateDataEmpty, bool());
   MOCK_METHOD1(OnCertificateUpdated, bool(const std::string&));
   MOCK_METHOD1(PostponeHandshake, void(const uint32_t));
+  MOCK_CONST_METHOD0(IsSystemTimeProviderReady, bool());
 };
 
 /*

@@ -1046,7 +1046,7 @@ TEST_F(ProtocolHandlerImplTest,
 
   SetProtocolVersion2();
   // call new SSLContext creation
-  EXPECT_CALL(security_manager_mock, CreateSSLContext(connection_key))
+  EXPECT_CALL(security_manager_mock, CreateSSLContext(connection_key, _))
       .
       // Return new SSLContext
       WillOnce(
@@ -1123,7 +1123,7 @@ TEST_F(ProtocolHandlerImplTest,
       .WillOnce(ReturnRefOfCopy(services));
 
   // call new SSLContext creation
-  EXPECT_CALL(security_manager_mock, CreateSSLContext(connection_key))
+  EXPECT_CALL(security_manager_mock, CreateSSLContext(connection_key, _))
       .
       // Return new SSLContext
       WillOnce(Return(&ssl_context_mock));
@@ -1202,7 +1202,7 @@ TEST_F(ProtocolHandlerImplTest,
   times++;
 
   // call new SSLContext creation
-  EXPECT_CALL(security_manager_mock, CreateSSLContext(connection_key))
+  EXPECT_CALL(security_manager_mock, CreateSSLContext(connection_key, _))
       .
       // Return new SSLContext
       WillOnce(
@@ -1300,7 +1300,7 @@ TEST_F(
   times++;
 
   // call new SSLContext creation
-  EXPECT_CALL(security_manager_mock, CreateSSLContext(connection_key))
+  EXPECT_CALL(security_manager_mock, CreateSSLContext(connection_key, _))
       .
       // Return new SSLContext
       WillOnce(
