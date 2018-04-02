@@ -44,6 +44,7 @@
 #include "security_manager/mock_security_manager.h"
 #include "security_manager/mock_ssl_context.h"
 #include "transport_manager/mock_transport_manager.h"
+#include "utils/mock_system_time_handler.h"
 #include "utils/make_shared.h"
 #include "utils/test_async_waiter.h"
 #include <bson_object.h>
@@ -93,6 +94,7 @@ using protocol_handler::kBulk;
 using protocol_handler::kInvalidServiceType;
 // For TM states
 using transport_manager::TransportManagerListener;
+using test::components::security_manager_test::MockSystemTimeHandler;
 using transport_manager::E_SUCCESS;
 using transport_manager::DeviceInfo;
 // For security
@@ -1427,27 +1429,34 @@ TEST_F(ProtocolHandlerImplTest,
 
   // Expect add listener for handshake result
   EXPECT_CALL(security_manager_mock, AddListener(_))
-      // Emulate handshake fail
-      .WillOnce(Invoke(OnHandshakeDoneFunctor(
-          connection_key,
-          security_manager::SSLContext::Handshake_Result_Success)));
+      // Emulate handshake
+      .WillOnce(
+          DoAll(NotifyTestAsyncWaiter(&waiter),
+                Invoke(OnHandshakeDoneFunctor(
+                    connection_key,
+                    security_manager::SSLContext::Handshake_Result_Success))));
+  times++;
 
   // Listener check SSLContext
   EXPECT_CALL(session_observer_mock,
               GetSSLContext(connection_key, start_service))
       .
       // Emulate protection for service is not enabled
-      WillOnce(ReturnNull());
-
-  // Expect service protection enable
+      WillOnce(DoAll(NotifyTestAsyncWaiter(&waiter), ReturnNull()));
+  times++;
+  EXPECT_CALL(security_manager_mock, IsSystemTimeProviderReady())
+      .WillOnce(Return(true));
   EXPECT_CALL(session_observer_mock,
-              SetProtectionFlag(connection_key, start_service));
+              SetProtectionFlag(connection_key, start_service))
+      .WillOnce(NotifyTestAsyncWaiter(&waiter));
+  times++;
 
-  // Expect send Ack with PROTECTION_OFF (on fail handshake)
+  //   Expect send Ack with PROTECTION_ON (on successfull handshake)
   EXPECT_CALL(transport_manager_mock,
               SendMessageToDevice(
                   ControlMessage(FRAME_DATA_START_SERVICE_ACK, PROTECTION_ON)))
       .WillOnce(DoAll(NotifyTestAsyncWaiter(&waiter), Return(E_SUCCESS)));
+
   times++;
 
   SendControlMessage(
