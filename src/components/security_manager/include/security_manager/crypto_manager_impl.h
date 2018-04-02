@@ -103,8 +103,21 @@ class CryptoManagerImpl : public CryptoManager {
 
     std::string GetTextBy(X509_NAME* name, int object) const;
 
-    int pull_number_from_buf(char* buf, int* idx) const;
-    time_t asn1_time_to_tm(ASN1_TIME* time) const;
+    /**
+     * @brief Pulls number stored in buffer of chars
+     * and returns it as integer
+     * @param buf where symbols stored
+     * @param idx index of required char to be converted
+     * @return number in integer representation
+     */
+    int get_number_from_char_buf(char* buf, int* idx) const;
+    /**
+     * @brief Converts time from ASN1 format (used in OpenSSL)
+     * to time_t data type
+     * @param time_to_convert time to be converted
+     * @return time in time_t format
+     */
+    time_t convert_asn1_time_to_time_t(ASN1_TIME* time_to_convert) const;
 
     SSL* connection_;
     BIO* bioIn_;

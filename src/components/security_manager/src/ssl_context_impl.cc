@@ -230,8 +230,8 @@ CryptoManagerImpl::SSLContextImpl::CheckCertContext() {
   ASN1_TIME* notBefore = X509_get_notBefore(cert);
   ASN1_TIME* notAfter = X509_get_notAfter(cert);
 
-  time_t start = asn1_time_to_tm(notBefore);
-  time_t end = asn1_time_to_tm(notAfter);
+  time_t start = convert_asn1_time_to_time_t(notBefore);
+  time_t end = convert_asn1_time_to_time_t(notAfter);
 
   const double start_seconds = difftime(hsh_context_.system_time, start);
   const double end_seconds = difftime(end, hsh_context_.system_time);
@@ -280,25 +280,26 @@ CryptoManagerImpl::SSLContextImpl::CheckCertContext() {
   return Handshake_Result_Success;
 }
 
-time_t CryptoManagerImpl::SSLContextImpl::asn1_time_to_tm(
-    ASN1_TIME* time) const {
+time_t CryptoManagerImpl::SSLContextImpl::convert_asn1_time_to_time_t(
+    ASN1_TIME* time_to_convert) const {
   struct tm cert_time;
   memset(&cert_time, 0, sizeof(struct tm));
   // the minimum value for day of month is 1, otherwise exception will be thrown
   cert_time.tm_mday = 1;
-  char* buf = reinterpret_cast<char*>(time->data);
+  char* buf = reinterpret_cast<char*>(time_to_convert->data);
   int index = 0;
-  const int year = pull_number_from_buf(buf, &index);
-  if (V_ASN1_GENERALIZEDTIME == time->type) {
-    cert_time.tm_year = (year * 100 - 1900) + pull_number_from_buf(buf, &index);
+  const int year = get_number_from_char_buf(buf, &index);
+  if (V_ASN1_GENERALIZEDTIME == time_to_convert->type) {
+    cert_time.tm_year =
+        (year * 100 - 1900) + get_number_from_char_buf(buf, &index);
   } else {
     cert_time.tm_year = year < 50 ? year + 100 : year;
   }
 
-  const int mon = pull_number_from_buf(buf, &index);
-  const int day = pull_number_from_buf(buf, &index);
-  const int hour = pull_number_from_buf(buf, &index);
-  const int mn = pull_number_from_buf(buf, &index);
+  const int mon = get_number_from_char_buf(buf, &index);
+  const int day = get_number_from_char_buf(buf, &index);
+  const int hour = get_number_from_char_buf(buf, &index);
+  const int mn = get_number_from_char_buf(buf, &index);
 
   cert_time.tm_mon = mon - 1;
   cert_time.tm_mday = day;
@@ -309,11 +310,11 @@ time_t CryptoManagerImpl::SSLContextImpl::asn1_time_to_tm(
     cert_time.tm_sec = 0;
   }
   if ((buf[index] == '+') || (buf[index] == '-')) {
-    const int mn = pull_number_from_buf(buf, &index);
-    const int mn1 = pull_number_from_buf(buf, &index);
+    const int mn = get_number_from_char_buf(buf, &index);
+    const int mn1 = get_number_from_char_buf(buf, &index);
     cert_time.tm_sec = (mn * 3600) + (mn1 * 60);
   } else {
-    const int sec = pull_number_from_buf(buf, &index);
+    const int sec = get_number_from_char_buf(buf, &index);
     cert_time.tm_sec = sec;
   }
 
@@ -533,7 +534,7 @@ bool CryptoManagerImpl::SSLContextImpl::GetCertificateDueDate(
     return false;
   }
 
-  due_date = asn1_time_to_tm(X509_get_notAfter(cert));
+  due_date = convert_asn1_time_to_time_t(X509_get_notAfter(cert));
 
   return true;
 }

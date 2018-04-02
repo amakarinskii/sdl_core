@@ -107,7 +107,7 @@ class SSLContext {
   /**
   * @brief GetCertificateDueDate gets certificate expiration date
   * @param due_date - certificate expiration time to be received
-  * @return True if certificate expiration date receivedssss
+  * @return True if certificate expiration date received
   * otherwise False
   */
   virtual bool GetCertificateDueDate(time_t& due_date) const = 0;

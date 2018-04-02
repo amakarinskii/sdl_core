@@ -952,9 +952,9 @@ class ApplicationManagerImpl
 
   /**
    * @brief OnHandshakeFailed currently does nothing.
-   * The method is declared as pure virtual in common base class
-   * therefore it has to be present to allow instanses of current class
-   * creation
+   * This method is declared as pure virtual in common base class
+   * therefore it has to be present and should be implemented
+   * to allow creation of current class instances
    */
   void OnHandshakeFailed() OVERRIDE;
   /**

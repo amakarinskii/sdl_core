@@ -355,8 +355,8 @@ bool CryptoManagerImpl::set_certificate(const std::string& cert_data) {
   return true;
 }
 
-int CryptoManagerImpl::SSLContextImpl::pull_number_from_buf(char* buf,
-                                                            int* idx) const {
+int CryptoManagerImpl::SSLContextImpl::get_number_from_char_buf(
+    char* buf, int* idx) const {
   if (!idx) {
     return 0;
   }
