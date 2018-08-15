@@ -1314,7 +1314,7 @@
         <description>Reflects the current primary audio source (if selected).</description>
         <element name="NO_SOURCE_SELECTED">
         </element>
-        <element name="CD">
+        <element name="CD"  since="5.0">
         </element>
         <element name="USB">
         </element>
@@ -1328,7 +1328,7 @@
         </element>
         <element name="MOBILE_APP">
         </element>
-        <element name="RADIO_TUNER">
+        <element name="RADIO_TUNER"  since="5.0">
            <description>Radio may be on AM, FM or XM</description>
         </element>
     </enum>
@@ -2922,7 +2922,7 @@
         </param>
     </struct>
 
-    <struct name="StationIDNumber">
+    <struct name="StationIDNumber" since="5.0">
         <param name="countryCode" type="Integer" minvalue="0" maxvalue="999"  mandatory="false">
             <description>Binary Representation of ITU Country Code. USA Code is 001.</description>
         </param>
@@ -2931,7 +2931,7 @@
         </param>
     </struct>
 
-    <struct name="SisData">
+    <struct name="SisData" since="5.0">
         <param name="stationShortName" type="String" minlength="4" maxlength="7"  mandatory="false">
             <description>Identifies the 4-alpha-character station call sign plus an optional (-FM) extension</description>
         </param>
@@ -2976,7 +2976,7 @@
         </param>
         <param name="state" type="RadioState" mandatory="false">
         </param>
-        <param name="sisData" type="SisData" mandatory="false">
+        <param name="sisData" type="SisData" mandatory="false" since="5.0">
             <description>Read-only Station Information Service (SIS) data provides basic information about the station such as call sign, as well as information not displayable to the consumer such as the station identification number</description>
         </param>
     </struct>
@@ -3003,16 +3003,16 @@
         <param name="ventilationMode" type="VentilationMode" mandatory="false">
         </param>
         <param name="heatedSteeringWheelEnable" type="Boolean" mandatory="false">
-          <description>value false means disabled/turn off, value true means enabled/turn on.</description>
+            <description>value false means disabled/turn off, value true means enabled/turn on.</description>
         </param>
         <param name="heatedWindshieldEnable" type="Boolean" mandatory="false">
-          <description>value false means disabled, value true means enabled.</description>
+            <description>value false means disabled, value true means enabled.</description>
         </param>
         <param name="heatedRearWindowEnable" type="Boolean" mandatory="false">
-          <description>value false means disabled, value true means enabled.</description>
+            <description>value false means disabled, value true means enabled.</description>
         </param>
         <param name="heatedMirrorsEnable" type="Boolean" mandatory="false">
-          <description>value false means disabled, value true means enabled.</description>
+            <description>value false means disabled, value true means enabled.</description>
         </param>
     </struct>
     
@@ -3079,11 +3079,11 @@
                 True: Available, False: Not Available, Not present: Not Available.
             </description>
         </param>
-        <param name="sisDataAvailable" type="Boolean" mandatory="false">
-          <description>
-            Availability of the getting HD radio Station Information Service (SIS) data.
-            True: Available, False: Not Available, Not present: Not Available.
-          </description>
+        <param name="sisDataAvailable" type="Boolean" mandatory="false" since="5.0">
+            <description>
+                Availability of the getting HD radio Station Information Service (SIS) data.
+                True: Available, False: Not Available, Not present: Not Available.
+            </description>
         </param>
     </struct>
     
@@ -3095,10 +3095,10 @@
                 It should not be used to identify a module by mobile application.</description>
         </param>
         <param name="currentTemperatureAvailable" type="Boolean" mandatory="false">
-              <description>
+            <description>
                 Availability of the reading of current temperature.
                 True: Available, False: Not Available, Not present: Not Available.
-        </description>
+            </description>
         </param>
         <param name="fanSpeedAvailable" type="Boolean" mandatory="false">
             <description>
@@ -3165,28 +3165,28 @@
             </description>
         </param>
         <param name="heatedSteeringWheelAvailable" type="Boolean" mandatory="false">
-          <description>
-            Availability of the control (enable/disable) of heated Steering Wheel.
-            True: Available, False: Not Available, Not present: Not Available.
-          </description>
+            <description>
+                Availability of the control (enable/disable) of heated Steering Wheel.
+                True: Available, False: Not Available, Not present: Not Available.
+            </description>
         </param>
         <param name="heatedWindshieldAvailable" type="Boolean" mandatory="false">
-          <description>
-            Availability of the control (enable/disable) of heated Windshield.
-            True: Available, False: Not Available, Not present: Not Available.
-          </description>
+            <description>
+                Availability of the control (enable/disable) of heated Windshield.
+                True: Available, False: Not Available, Not present: Not Available.
+            </description>
         </param>
         <param name="heatedRearWindowAvailable" type="Boolean" mandatory="false">
-          <description>
-            Availability of the control (enable/disable) of heated Rear Window.
-            True: Available, False: Not Available, Not present: Not Available.
-          </description>
+            <description>
+                Availability of the control (enable/disable) of heated Rear Window.
+                True: Available, False: Not Available, Not present: Not Available.
+            </description>
         </param>
         <param name="heatedMirrorsAvailable" type="Boolean" mandatory="false">
-          <description>
-            Availability of the control (enable/disable) of heated Mirrors.
-            True: Available, False: Not Available, Not present: Not Available.
-          </description>
+            <description>
+                Availability of the control (enable/disable) of heated Mirrors.
+                True: Available, False: Not Available, Not present: Not Available.
+            </description>
         </param>
     </struct>
 
@@ -3194,7 +3194,7 @@
         <description>Defines the each Equalizer channel settings.</description>
         <param name="channelId" type="Integer" minvalue="1" maxvalue="100" mandatory="true"></param>
         <param name="channelName" type="String" mandatory="false" maxlength="50">
-           <description>read-only channel / frequency name (e.i. "Treble, Midrange, Bass" or "125 Hz")</description>
+            <description>read-only channel / frequency name (e.i. "Treble, Midrange, Bass" or "125 Hz")</description>
         </param>
         <param name="channelSetting" type="Integer" minvalue="0" maxvalue="100" mandatory="true"></param>
     </struct>
@@ -3247,7 +3247,7 @@
             <description>Must be included if equalizerAvailable=true, and assume all IDs starting from 1 to this value are valid</description>
         </param>
     </struct>
-
+    
     <struct name="RGBColor">
         <param name="red" type="Integer" minvalue="0" maxvalue="255" mandatory="true" />
         <param name="green" type="Integer" minvalue="0" maxvalue="255" mandatory="true" />
@@ -3343,7 +3343,7 @@
             Indicates if the light's density can be set remotely (similar to a dimmer).
             </description>
         </param>
-        <param name="rgbColorAvailable" type="Boolean" mandatory="false">
+        <param name="rgbColorSpaceAvailable" type="Boolean" mandatory="false">
             <description>
             Indicates if the light's color can be set remotely by using the RGB color space.
             </description>
@@ -3377,7 +3377,7 @@
         </param>
     </struct>
 
-    <enum name="DisplayMode">
+    <enum name="DisplayMode" since="5.0">
         <element name="DAY"/>
         <element name="NIGHT"/>
         <element name="AUTO"/>

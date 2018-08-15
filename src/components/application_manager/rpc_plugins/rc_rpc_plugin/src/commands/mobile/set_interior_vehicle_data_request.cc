@@ -128,9 +128,6 @@ const std::map<std::string, std::string> GetModuleDataToCapabilitiesMapping() {
   mapping["volume"] = "volumeAvailable";
   mapping["equalizerSettings"] = "equalizerAvailable";
 
-  // light
-  mapping["supportedLights"] = "";
-
   // hmi settings
   mapping["distanceUnit"] = "distanceUnitAvailable";
   mapping["temperatureUnit"] = "temperatureUnitAvailable";
@@ -174,7 +171,7 @@ bool CheckLightDataByCapabilities(
   std::map<std::string, std::string> lightCapsMapping = {
       {message_params::kId, strings::kName},
       {message_params::kDensity, strings::kDensityAvailable},
-      {message_params::kColor, strings::krgbColorAvailable}};
+      {message_params::kColor, strings::kRGBColorSpaceAvailable}};
   auto it = light_data.map_begin();
   for (; it != light_data.map_end(); ++it) {
     if (message_params::kStatus == it->first ||
