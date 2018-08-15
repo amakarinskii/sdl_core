@@ -53,7 +53,7 @@ const char kSupportedLights[] = "supportedLights";
 // LightControlCapabilities
 const char kName[] = "name";
 const char kDensityAvailable[] = "densityAvailable";
-const char kSRGBColorSpaceAvailable[] = "sRGBColorSpaceAvailable";
+const char kRGBColorSpaceAvailable[] = "RGBColorSpaceAvailable";
 }  //  strings
 
 namespace result_codes {
@@ -177,7 +177,7 @@ const char kHeatedMirrorsEnable[] = "heatedMirrorsEnable";
 const char kLightState[] = "lightState";
 const char kStatus[] = "status";
 const char kDensity[] = "density";
-const char kSRGBColor[] = "sRGBColor";
+const char kColor[] = "color";
 
 // AudioControlData
 const char kSource[] = "source";

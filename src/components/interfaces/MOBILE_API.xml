@@ -3257,6 +3257,12 @@
         </param>
     </struct>
 
+    <struct name="RGBColor">
+        <param name="red" type="Integer" minvalue="0" maxvalue="255" mandatory="true" />
+        <param name="green" type="Integer" minvalue="0" maxvalue="255" mandatory="true" />
+        <param name="blue" type="Integer" minvalue="0" maxvalue="255" mandatory="true" />
+    </struct>
+
     <enum name="LightName">
         <!-- Common Single Light 0~500 -->
         <element name="FRONT_LEFT_HIGH_BEAM" value="0"/>
@@ -3338,12 +3344,6 @@
         <element name="OFF"/>
     </enum>
 
-    <struct name="SRGBColor">
-        <param name="red" type="Integer" minvalue="0" maxvalue="255"  mandatory="true"/>
-        <param name="green" type="Integer" minvalue="0" maxvalue="255"  mandatory="true"/>
-        <param name="blue" type="Integer" minvalue="0" maxvalue="255"  mandatory="true"/>
-    </struct>
-
     <struct name="LightCapabilities">
         <param name="name" type="LightName" mandatory="true" />
         <!-- Assuming light ON/OFF status is always available -->
@@ -3352,9 +3352,9 @@
             Indicates if the light's density can be set remotely (similar to a dimmer).
             </description>
         </param>
-        <param name="sRGBColorSpaceAvailable" type="Boolean" mandatory="false">
+        <param name="RGBColorSpaceAvailable" type="Boolean" mandatory="false">
             <description>
-            Indicates if the light's color can be set remotely by using the sRGB color space.
+            Indicates if the light's color can be set remotely by using the RGB color space.
             </description>
         </param>
     </struct>
@@ -3377,7 +3377,7 @@
         </param>
         <param name="status" type="LightStatus" mandatory="true"/>
         <param name="density" type="Float" minvalue="0" maxvalue="1" mandatory="false" />
-        <param name="sRGBColor" type="SRGBColor" mandatory="false" />
+        <param name="color" type="RGBColor" mandatory="false" />
     </struct>
 
     <struct name="LightControlData">
@@ -3562,12 +3562,6 @@
         <param name="rect" type="Rectangle" mandatory="true">
             <description>The position of the haptic rectangle to be highlighted. The center of this rectangle will be "touched" when a press occurs.</description>
         </param>
-    </struct>
-
-    <struct name="RGBColor">
-        <param name="red" type="Integer" minvalue="0" maxvalue="255" mandatory="true" />
-        <param name="green" type="Integer" minvalue="0" maxvalue="255" mandatory="true" />
-        <param name="blue" type="Integer" minvalue="0" maxvalue="255" mandatory="true" />
     </struct>
 
     <struct name="TemplateColorScheme">
